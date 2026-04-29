@@ -15,11 +15,16 @@ def gameStart(pokerGame):
     for hand in pokerTable:
         if hand.type == "HERO":
             print(hand)
+            print(hand.stack)
 
 
     # need to add a datastructure that will store the flop and the final 
     # board
     flop = pokerGame.deck.dealFlop()
+    turn = pokerGame.deck.dealTurnRiv()
+    river = pokerGame.deck.dealTurnRiv()
+    flop.append(turn)
+    flop.append(river)
     print(flop)
 
 

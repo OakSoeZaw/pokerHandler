@@ -17,10 +17,10 @@ class Position(Enum):
     BTN = "btn"
 
 class Players():
-    def __init__(self):
+    def __init__(self, startingStack = 100):
         self.type=''
         self.hand = []
-        # SB Btn BB
+        self.stack = startingStack
         self.position = ''
     def __repr__(self):
         return f'{self.position} is {self.type} -> {self.hand}'
