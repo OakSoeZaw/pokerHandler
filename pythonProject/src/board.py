@@ -75,11 +75,15 @@ def get_villain_action(player, current_bet):
 
 
 def gameStart(pokerGame):
-    pokerTable = pokerGame.dealHand()
-    for hand in pokerTable:
+    players = pokerGame.dealHand()
+    for hand in players:
         print(hand)
     # while(openAction):
 
+
+    #preFlop actions
+    starting_idx = pokerGame.post_blinds(players)
+    print(f"\n-- Preflop | Pot: {pokerGame.pot} ---")
 
     
 

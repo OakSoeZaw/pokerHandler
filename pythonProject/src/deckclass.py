@@ -208,6 +208,22 @@ class PokerGame:
             self.pot += player.current_bet
             player.current_bet = 0
             player.has_acted = False
+    
+    def post_blinds(self, players):
+        starting_index = 0
+        for i, player in enumerate(players):
+            if player.position == Position.SB:
+                player.current_bet = self.smallBlind
+                player.stack -= self.smallBlind
+                starting_index = i
+            if player.position == Position.BB:
+                player.current_bet = self.bigBlind
+                player.stack -= self.bigBlind
+            if player.position == Position.UTG:
+                starting_index = i
+        
+        return starting_index
+        
 
 
 
