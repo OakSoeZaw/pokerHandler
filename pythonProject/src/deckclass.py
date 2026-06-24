@@ -1,5 +1,4 @@
 import random
-import board
 from enum import Enum
 
 class Suit(Enum):
@@ -30,15 +29,15 @@ class Players():
         return f'{self.position} is {self.type} -> {self.hand}'
 
 class Rank(Enum):
-    TWO = 2
-    THREE = 3
-    FOUR = 4
-    FIVE = 5
-    SIX = 6
-    SEVEN = 7
-    EIGHT = 8
-    NINE = 9
-    TEN = 10
+    TWO = '2'
+    THREE = '3'
+    FOUR = '4'
+    FIVE = '5'
+    SIX = '6'
+    SEVEN = '7'
+    EIGHT = '8'
+    NINE = '9'
+    TEN = 'T'
     JACK = 'J'
     QUEEN = 'Q'
     KING = 'K'
@@ -53,7 +52,7 @@ class Card:
         return f"{self.suit.name.title()} of {self.rank.name.title()}"
 
     def __repr__(self):
-        return f'({self.rank.value}, {self.suit.value})'
+        return f'({self.rank.value} {self.suit.value})'
 
     def __eq__(self,other):
         return self.suit == other.suit and self.rank == other.rank
@@ -169,39 +168,6 @@ class PokerGame:
 
         return True
 
-    def betting_round(self, players, starting_index, current_bet):
-        current_index = starting_index
-        while not self.is_round_over(players, current_bet):
-            player = players[current_index]
-            if player.type == 'HERO':
-                action, amount = get_hero_action(player, current_bet)
-            else:
-                action, amount = get_villain_action(player, current_bet)
-            
-            if(action == 'fold'):
-                player.active = False
-                player.has_acted = True
-            if(action == "call"):
-                player.active = True
-                player.has_acted = True
-                player.stack = player.stack - current_bet + player.current_bet
-                player.current_bet = current_bet
-            if(action == "raise"):
-                if(amount < 2 * current_bet):
-                    print("Unvalid amount to raise")
-                else:
-                    player.current_bet = amount
-                    player.stack = player.stack - (amount - player.current_bet)
-                    player.has_acted = True
-                    current_bet = amount
-                    for activePlayer in players:
-                        if activePlayer != player and activePlayer.active == True:
-                            activePlayer.has_acted = False
-
-
-            current_index = self.get_next_active(players, current_index)
-        
-        self.collect_bets(players)
 
     def collect_bets(self, players):
         for player in players:
@@ -209,9 +175,11 @@ class PokerGame:
             player.current_bet = 0
             player.has_acted = False
     
-    def post_blinds(self, players):
+    def post_blinds(self, players) -> int:
         starting_index = 0
         for i, player in enumerate(players):
+            if player.position == Position.BTN:
+                button_index = i
             if player.position == Position.SB:
                 player.current_bet = self.smallBlind
                 player.stack -= self.smallBlind
@@ -221,8 +189,11 @@ class PokerGame:
                 player.stack -= self.bigBlind
             if player.position == Position.UTG:
                 starting_index = i
-        
-        return starting_index
+
+        if len(players) == 3:
+            return button_index
+        else:
+            return starting_index
         
 
 
