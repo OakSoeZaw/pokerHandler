@@ -11,8 +11,8 @@ class Suit(Enum):
 class Position(Enum):
     SB = "sb"
     BB = "bb"
-    UTG = "utg"
-    MP = "mp"
+    LJ = "lj"
+    HJ = "hj"
     CO = "co"
     BTN = "btn"
 
@@ -109,8 +109,8 @@ class PokerGame:
             Position.BTN,
             Position.SB,
             Position.BB,
-            Position.UTG,
-            Position.MP,
+            Position.LJ,
+            Position.HJ,
             Position.CO
         ]
 
@@ -187,7 +187,7 @@ class PokerGame:
             if player.position == Position.BB:
                 player.current_bet = self.bigBlind
                 player.stack -= self.bigBlind
-            if player.position == Position.UTG:
+            if player.position == Position.LJ:
                 starting_index = i
 
         if len(players) == 3:

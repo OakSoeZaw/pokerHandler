@@ -1,71 +1,66 @@
 import deckclass
 import evaluator
 import betting
+from gto import GTO, lookup
+
+from hand_parser import normalize_hand
 
 activePlayer = []
 openAction = True
 showdown = False
-TableSeat= []
-
-
-
+TableSeat = []
 
 
 def gameStart(pokerGame):
     players = pokerGame.dealHand()
 
-    for i,hand in enumerate(players):
-        print(hand)
+    agressor = None
+    hero = None
+    num_raises = 0
+    normalized_hands = {}
 
-    #preFlop actions
+    for i, player in enumerate(players):
+        print(player)
+
+        card1, card2 = player.hand[0], player.hand[1]
+        normalized_hand = normalize_hand(card1, card2)
+        normalized_hands[player] = normalized_hand
+
+    # preFlop actions
     starting_idx = pokerGame.post_blinds(players)
     print(f"\n-- Preflop | Pot: {pokerGame.pot} ---")
-    betting.betting_round(pokerGame,players, starting_idx, pokerGame.bigBlind)
+    hero, hero_actions = betting.betting_round(
+        pokerGame, players, starting_idx, pokerGame.bigBlind
+    )
 
-    #flop
-    board = pokerGame.flop()
-    print(f"\n-- Board(Flop): {board} | Pot: {pokerGame.pot} ---")
-    betting.betting_round(pokerGame,players, 1,current_bet = 0)
-    resultFlop = evaluator.evaluateHand(board, players)
+    print(f"----Validating Actions ---")
+    for item in hero_actions:
+        situation = item["situation"]
+        raiser = item["raiser_position"]
+        raiser_position = raiser if raiser else None
+        correct_action = lookup(
+            hero.position.value, situation, normalized_hands[hero], raiser_position
+        )
 
-    #turn
-    turn = pokerGame.turnRiv()
-    board.append(turn)
-    print(f"\n -- Board(Turn): {board} | Pot: {pokerGame.pot} ---")
-    betting.betting_round(pokerGame,players, 1, current_bet = 0)
-    resultTurn = evaluator.evaluateHand(board, players)
-
-    #River
-    river = pokerGame.turnRiv()
-    board.append(river)
-    print(f"\n -- Board(River): {board} | Pot: {pokerGame.pot} --")
-    betting.betting_round(pokerGame,players, 1, current_bet = 0)
-    resultRiver = evaluator.evaluateHand(board, players)
-
-    print(f"\n--- Showdown | Final pot: {pokerGame.pot}---")
-
-    print("---Flop ---")
-    for item in resultFlop:
-        print(item)
-    
-    print("--Turn--")
-    for item in resultTurn:
-        print(item)
-    
-    print("--River--")
-    for item in resultRiver:
-        print(item)
-
-    winner = evaluator.findWinner(resultRiver)
-    print(winner)
-    
-    
+        check_result = check_action(correct_action, item["action"])
+        if check_result:
+            print("Right Decision")
+        else:
+            print(f"Wrong! GTO says {correct_action}")
 
 
-if __name__ == '__main__':
-    pokerGame = deckclass.PokerGame(numOfPlayer=3) # max player is 6
+def check_action(correct_action, actual_action):
+    if correct_action == "raise_bluff" and actual_action in ("raise", "fold"):
+        return True
+    elif correct_action == "raise_value" and actual_action == "raise":
+        return True
+    elif correct_action == actual_action:
+        return True
+    else:
+        return False
+
+
+if __name__ == "__main__":
+    pokerGame = deckclass.PokerGame(numOfPlayer=6)  # max player is 6
 
     gameStart(pokerGame)
-
-
-
