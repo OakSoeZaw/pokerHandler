@@ -1,0 +1,40 @@
+Phase 1 — GTO Chart Data Layer
+
+Research and source preflop GTO charts for each position (RFI ranges, 3bet ranges, calling ranges) — sites like GTOWizard or Poker Coach have these
+Encode them as Python data structures (dicts or JSON files), keyed by position and hand (e.g. "BTN": {"AKs": "raise", "72o": "fold", ...})
+Build a gto.py module with a lookup(position, hand) -> action function
+You'll need a hand normalizer to convert your Card objects into a standard notation like "AKs" or "72o"
+
+
+Phase 2 — Refactor to Preflop-Only Mode
+
+Strip out or gate-off the flop/turn/river logic for now — your trainer only cares about preflop
+Simplify gameStart() to: deal hands → post blinds → run one preflop betting round → evaluate Hero's action → give feedback
+
+
+Phase 3 — Hero Feedback System
+
+After Hero acts, compare their action to gto.lookup(hero.position, hero.hand)
+Print feedback: correct / incorrect, and what the GTO play would have been
+Optionally show the frequency (e.g. "GTO raises this hand 70% of the time")
+
+
+Phase 4 — AI Villain GTO Actions
+
+Replace the random/call-only villain logic in get_villain_action() with a GTO lookup
+Villain raises, calls, or folds based on their position's chart
+This makes the training environment more realistic
+
+
+Phase 5 — Loop & Session Tracking
+
+Wrap gameStart() in a loop so Hero can play many hands in a row
+Track a simple score: correct actions / total hands
+Print a summary at the end of the session
+
+
+Key new files you'll need:
+
+gto.py — chart data + lookup logic
+hand_parser.py — converts your Card objects to chart notation (AKs, T9o, etc.)
+Modify: betting.py, board.py (your main file), and optionally deckclass.py
